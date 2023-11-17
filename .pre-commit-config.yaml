@@ -3,11 +3,7 @@ repos:
     rev: 6.0.0
     hooks:
       - id: flake8
-        exclude: |
-          (?x)^(
-              .*\b(migrations)\b.*$|
-              dj_project/settings.py|
-          )$
+
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
@@ -18,7 +14,4 @@ repos:
     rev: 23.10.1
     hooks:
       - id: black
-        exclude: |
-          (?x)^(
-              base_project/.*/migrations/.*|
-          )
+        

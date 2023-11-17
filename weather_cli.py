@@ -76,18 +76,32 @@ def analyze_dataset(date):
         em = int(em)
         ed = int(ed)
         # print(d.head())
-        d = pd.read_csv("weather.csv")
-        info("Dataset from weather.csv is imported")
-        new_df = d[
-            (d["Day"] >= sd)
-            & (d["Month"] >= sm)
-            & (d["Year"] >= sy)
-            & (d["Day"] <= ed)
-            & (d["Month"] <= em)
-            & (d["Year"] <= ey)
-        ]
-        print(new_df.head())
-        print(new_df.shape)
+        try:
+            d = pd.read_csv("weather.csv")
+            info("Dataset from weather.csv is imported")
+        except NameError:
+            print("File not found")
+
+        if sd >= ed and sm >= em and sy >= em:
+            try:
+                new_df = d[
+                    (d["Day"] >= sd)
+                    & (d["Month"] >= sm)
+                    & (d["Year"] >= sy)
+                    & (d["Day"] <= ed)
+                    & (d["Month"] <= em)
+                    & (d["Year"] <= ey)
+                ]
+            except ValueError:
+                print(
+                    "Invalid Range, \
+                     Format'Starting Date to Ending Date'"
+                )
+        try:
+            print(new_df.head())
+            print(new_df.shape)
+        except ValueError:
+            print("Data not found")
         avg_temp = int()
         min_temp = int()
         max_temp = int()
@@ -191,7 +205,10 @@ def initiate_cli():
         import_dataset(args.file)
 
     elif args.cmd == "analyze":
-        analyze_dataset(args.range)
+        try:
+            analyze_dataset(args.range)
+        except ValueError:
+            print("'YYYY/MM/DD to YYYY/MM/DD' this is format for range string")
 
     elif args.cmd == "export":
         export_results(args.format)
