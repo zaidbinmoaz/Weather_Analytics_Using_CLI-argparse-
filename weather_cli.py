@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from datetime import date
 from logging import basicConfig, info
 
 import pandas as pd
@@ -9,7 +10,7 @@ from matplotlib import pyplot as plt
 # ------------------------------------------------------------------------------------
 
 basicConfig(
-    filename="test.log",
+    filename="files/log/test.log",
     level=20,
     format="%(asctime)s:%(levelname)s:%(name)s:line#:%(lineno)s:%(message)s",
     filemode="w",
@@ -31,7 +32,7 @@ def import_dataset(file_name):
     df = pd.DataFrame()
     if file_name.endswith(".csv"):
         try:
-            df = pd.read_csv(file_name)
+            df = pd.read_csv(f"files/dataset/{file_name}")
             info(f"dataset from {file_name} is imported")
             print(f"{file_name} is imported")
             # print(df.head)
@@ -61,28 +62,25 @@ def import_dataset(file_name):
 # ------------------------------------------------------------------------------------
 
 
-def analyze_dataset(date):
-    # d=data
-    if date:
-        date = date.split(" ")
-        start = date[0]
-        sy, sm, sd = start.split("-")
-        sy = int(sy)
-        sm = int(sm)
-        sd = int(sd)
-        end = date[2]
-        ey, em, ed = end.split("-")
-        ey = int(ey)
-        em = int(em)
-        ed = int(ed)
-        # print(d.head())
-        try:
-            d = pd.read_csv("weather.csv")
-            info("Dataset from weather.csv is imported")
-        except NameError:
-            print("File not found")
+def analyze_dataset(range):
+    try:
+        d = pd.read_csv("files/dataset/weather.csv")
+        info("Dataset from weather.csv is imported")
+    except NameError:
+        print("File not found")
+        return
+    if range:
+        range = range.split(" ")
+        start = range[0]
+        sy, sm, sd = [int(x) for x in start.split("-")]
 
-        if sd >= ed and sm >= em and sy >= em:
+        end = range[2]
+        ey, em, ed = [int(x) for x in end.split("-")]
+
+        d1 = date(sy, sm, sd)
+        d2 = date(ey, em, ed)
+
+        if d1 < d2:
             try:
                 new_df = d[
                     (d["Day"] >= sd)
@@ -92,16 +90,19 @@ def analyze_dataset(date):
                     & (d["Month"] <= em)
                     & (d["Year"] <= ey)
                 ]
+
             except ValueError:
                 print(
                     "Invalid Range, \
                      Format'Starting Date to Ending Date'"
                 )
+                return
         try:
             print(new_df.head())
             print(new_df.shape)
         except ValueError:
             print("Data not found")
+            return
         avg_temp = int()
         min_temp = int()
         max_temp = int()
@@ -146,7 +147,8 @@ def analyze_dataset(date):
             [[avg_temp, min_temp, max_temp]],
             columns=["avg_temp", "min_temp", "max_temp"],
         )
-        x.to_csv("results.csv", index=False)
+        path = "files/result/"
+        x.to_csv(path + "results.csv", index=False)
         info("Results exported")
         return val_list
     else:
